@@ -1,25 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import Main from './screens/Main/main'
+import { Routes, Route, Link, Navigate } from 'react-router-dom'
+import ScreenWeather from './screens/WeatherScreen/screenWeather'
 
-function App() {
+export const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <div>
+        <Link to='/'> Поиск по городу </Link>
+        <Link to='/screenWeather'> Погода </Link>
+      </div>
+      <Routes>
+        <Route path='/' element={<Main />} />
+        <Route path='/:id' element={<ScreenWeather />} />
+        <Route path='*' element={<Navigate to='/' />} />
+      </Routes>
+    </>
+  )
 }
-
-export default App;
