@@ -1,51 +1,44 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { SearchButton } from './Search.styles'
 import { debounce } from 'debounce'
 import Input from '../../UI/Input'
 import { $cities, searchCity } from './model'
 import { useStore } from 'effector-react'
-import { Link, useNavigate } from 'react-router-dom'
 import { $weather, searchWeatherCoord, searchWeatherFx } from '../Weather/modelWeather'
+import { weatherRoute } from '../../App'
+import { redirect } from 'atomic-router'
 
 const Search = () => {
-  const [cityIn, setCityIn] = useState('')
   const [geo, setGeo] = useState({})
-
-  const navigate = useNavigate()
+  const [cityIn, setCityIn] = useState('')
   const cities = useStore($cities)
-  const weathers = useStore($weather)
-
-  const isWeatherFinally = useStore(searchWeatherFx.pending)
-
-  useEffect(() => {
-    if (isWeatherFinally) {
-      navigate(`/${geo.name}?lon=${geo.lon}&lat=${geo.lat}`)
-    }
-  }, [isWeatherFinally, geo])
 
   const handleCityChange = debounce(cityIn => {
     setCityIn(cityIn)
     searchCity(cityIn)
   }, 500)
 
-  const getWeather = debounce(({ lon, lat, name }) => {
-    setGeo({ lon, lat, name })
+  const getWeather = ({ lon, lat }) => {
+    setGeo({ lon, lat })
+    $weather.reset(searchWeatherCoord)
     searchWeatherCoord({
-      q: name,
       lon,
       lat
     })
-  }, 500)
+    redirect({
+      clock: searchWeatherFx.done,
+      route: weatherRoute,
+      query: { lon: lon, lat: lat }
+    })
+  }
 
   return (
     <div>
+      <div>Поиск города</div>
       <Input onChange={handleCityChange} />
       <div>
         {cities?.map(city => (
-          <SearchButton
-            key={city.lat}
-            onClick={() => getWeather({ lon: city.lon, lat: city.lat, name: city.name })}
-          >
+          <SearchButton key={city.lat} onClick={() => getWeather({ lon: city.lon, lat: city.lat })}>
             {city.name}: {city.country}
           </SearchButton>
         ))}

@@ -23,11 +23,3 @@ sample({
 })
 
 $cities.on(searchCityFx.doneData, (state, cities) => cities)
-
-// $weather.watch(a => console.log(a));
-// searchWeather.watch(a => console.log(a));
-// searchWeatherFx.watch(a => console.log(a));
-//
-// $cities.watch(a => console.log(a))
-// search.watch(a => console.log(a))
-// searchFx.watch(a => console.log(a))

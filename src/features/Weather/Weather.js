@@ -1,69 +1,54 @@
-import React, { useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
-import { useList, useStore } from 'effector-react'
+import { useStore } from 'effector-react'
 import { $weather, searchWeatherCoord } from './modelWeather'
-import { $cities } from '../Search/model'
-import main from '../../screens/Main/main'
-import { createEvent } from 'effector'
-
+import { Link } from 'atomic-router-react'
+import { homeRoute, otherRoute } from '../../App'
+import { useEffect } from 'react'
 const Weather = () => {
-  const { id } = useParams()
-  const [searchParams] = useSearchParams()
-
-  console.log({ id, searchParams })
-
   const weathers = useStore($weather)
-  const cities = useStore($cities)
-
-  const searchWeatherOutput = geo => {
-    searchWeatherCoord({
-      query: id,
-      ...geo
-    })
-  }
+  const searchString = new URLSearchParams(window.location.search)
 
   useEffect(() => {
+    const latF = searchString.get('lat')
+    const lonF = searchString.get('lon')
     const geo = {
-      lat: searchParams.get('lat'),
-      lon: searchParams.get('lon')
+      lat: latF,
+      lon: lonF
     }
-    const isWeather = !!weathers.find(weather => weather.name === id)
+    const isWeather = !!weathers.find(weather => weather.name)
     if (!isWeather) {
-      // searchWeatherOutput(geo)
-      console.log(weathers)
+      searchWeatherCoord(geo)
     }
-  }, [searchParams, weathers])
-
-  const renameWeather = createEvent()
-
-  const infoWeather = useList($weather, ({ name, coord }, index) => (
-    <li>
-      [{index}] {name} {coord.lan}
-    </li>
-  ))
+  }, [weathers])
 
   return (
-    <div>
+    <>
       <div>
-        <ul>{infoWeather}</ul>
-        {weathers?.map(weatherIn => (
-          <div>
-            <h1 key={weatherIn.lat}>{weatherIn.name}</h1>
-            <div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div>Температура: {weatherIn.main.temp}K</div>
-                <div>Скорость ветра: {weatherIn.wind.speed}M/c</div>
-                {weatherIn.weather.map(item => (
-                  <div>
-                    Небо: {item.main}, {item.description}
-                  </div>
-                ))}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Link to={homeRoute}>На главную страницу</Link>
+          <Link style={{ marginLeft: 50 }} to={otherRoute}>
+            На страницу поиска
+          </Link>
+        </div>
+        <div>
+          {weathers?.map(weatherIn => (
+            <div key={weatherIn.name}>
+              <h1>{weatherIn.name}</h1>
+              <div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div>Температура: {weatherIn.main.temp}K</div>
+                  <div>Скорость ветра: {weatherIn.wind.speed}M/c</div>
+                  {weatherIn.weather.map(item => (
+                    <div key={item.id}>
+                      Небо: {item.main}, {item.description}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

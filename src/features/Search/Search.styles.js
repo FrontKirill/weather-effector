@@ -5,4 +5,5 @@ export const SearchButton = styled.button`
   width: 148px;
   align-items: center;
   justify-content: center;
+  background-color: teal;
 `
